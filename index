@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pijar Elektrik - Sistem Jasa AC & Listrik</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Font: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .tab-content {
+      animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-slate-50/50 text-slate-800 pb-24 md:pb-0 antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- APP CONTAINER -->
+  <div id="app" class="min-h-screen flex flex-col md:flex-row">
+    
+    <!-- DESKTOP SIDEBAR -->
+    <aside class="hidden md:flex flex-col w-72 bg-slate-900 text-white min-h-screen p-6 sticky top-0 h-screen shadow-xl border-r border-slate-800/80">
+      <div class="mb-8 flex items-center gap-3.5">
+        <img src="logo.png" alt="Pijar Elektrik" class="w-11 h-11 rounded-2xl object-cover shadow-lg shadow-blue-500/25 bg-blue-600">
+        <div>
+          <h1 class="font-extrabold text-base tracking-wide text-white leading-tight">PIJAR ELEKTRIK</h1>
+          <p class="text-[11px] text-blue-400 font-semibold tracking-wider uppercase mt-0.5">Jasa AC & Listrik</p>
+        </div>
+      </div>
+
+      <nav class="space-y-2 flex-1">
+        <button onclick="switchTab('input')" id="nav-input" class="nav-btn w-full text-left px-4 py-3 rounded-xl bg-blue-600 text-white flex items-center gap-3 font-semibold text-sm shadow-md shadow-blue-600/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
+          <i class="fa-solid fa-plus-circle w-5 text-base"></i> Input Order
+        </button>
+        <button onclick="switchTab('orders')" id="nav-orders" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-slate-800/80 text-slate-300 flex items-center gap-3 font-medium text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
+          <i class="fa-solid fa-list-check w-5 text-base"></i> Daftar Order
+        </button>
+        <button onclick="switchTab('reports')" id="nav-reports" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-slate-800/80 text-slate-300 flex items-center gap-3 font-medium text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
+          <i class="fa-solid fa-chart-line w-5 text-base"></i> Laporan
+        </button>
+      </nav>
+      <div class="text-xs text-slate-500 pt-4 border-t border-slate-800/80 flex items-center justify-between">
+        <span>Pijar Elektrik</span>
+        <span class="bg-slate-800 text-slate-400 px-2 py-0.5 rounded text-[10px] font-semibold">v1.0</span>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 p-4 md:p-10 max-w-4xl mx-auto w-full">
+      
+      <!-- MOBILE HEADER -->
+      <header class="md:hidden flex justify-between items-center mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80">
+        <div class="flex items-center gap-3">
+          <img src="logo.png" alt="Pijar Elektrik" class="w-9 h-9 rounded-xl object-cover shadow-md shadow-blue-500/20 bg-blue-600">
+          <div>
+            <h1 class="font-extrabold text-sm text-slate-900 leading-tight">PIJAR ELEKTRIK</h1>
+            <p class="text-[10px] text-blue-600 font-semibold uppercase tracking-wide">AC & Listrik Service</p>
+          </div>
+        </div>
+        <span class="text-xs bg-blue-50 text-blue-700 font-bold px-3 py-1 rounded-full border border-blue-100">Owner</span>
+      </header>
+
+      <!-- TAB 1: FORM INPUT ORDER -->
+      <section id="tab-input" class="tab-content">
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200/80">
+          <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg shadow-inner">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Input Order Baru</h2>
+              <p class="text-xs text-slate-500">Catat pesanan layanan instalasi atau perbaikan.</p>
+            </div>
+          </div>
+          
+          <form id="orderForm" onsubmit="saveOrder(event)" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Tanggal Instalasi / Pengerjaan</label>
+                <input type="date" id="installationDate" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium transition-all">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Nama Teknisi</label>
+                <select id="technician" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium transition-all">
+                  <option value="" disabled selected>-- Pilih Teknisi --</option>
+                  <option value="JHON">JHON</option>
+                  <option value="MADUN">MADUN</option>
+                  <option value="RONI">RONI</option>
+                   <option value="JOKO">JOKO</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Nama Customer</label>
+              <input type="text" id="customerName" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium transition-all">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Alamat / Lokasi</label>
+              <textarea id="address" rows="2" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium transition-all"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Jenis Pekerjaan</label>
+              <select id="serviceType" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium transition-all">
+                <option value="" disabled selected>-- Pilih Jenis Pekerjaan --</option>
+                <option value="Cleaning">Cleaning</option>
+                <option value="Service">Service</option>
+                <option value="Instalasi AC">Instalasi AC</option>
+                <option value="Instalasi Listrik">Instalasi Listrik</option>
+                <option value="Instalasi Water Heater">Instalasi Water Heater</option>
+          
+              </select>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Asal Orderan</label>
+                <input type="text" id="channel" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium transition-all">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Jumlah Pekerjaan (Unit/Titik)</label>
+                <input type="number" id="quantity" min="1" value="1" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium transition-all">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Harga Jasa (Total Rp)</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-sm font-bold text-slate-400">Rp</span>
+                <input type="number" id="fee" required class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium transition-all">
+              </div>
+            </div>
+
+            <!-- Tombol Simpan -->
+            <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all duration-200 shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 text-sm cursor-pointer mt-2">
+              <i class="fa-solid fa-floppy-disk" id="submitIcon"></i> 
+              <span id="submitText">Simpan Orderan</span>
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- TAB 2: DAFTAR ORDER -->
+      <section id="tab-orders" class="tab-content hidden">
+        <div class="bg-white p-5 md:p-8 rounded-2xl shadow-sm border border-slate-200/80">
+          <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Daftar Orderan Masuk</h2>
+              <p class="text-xs text-slate-500">Semua riwayat pesanan yang telah dicatat.</p>
+            </div>
+            <span id="orderCount" class="text-xs bg-blue-50 text-blue-700 font-bold px-3 py-1.5 rounded-full border border-blue-100">0 Order</span>
+          </div>
+          
+          <div id="orderListContainer" class="space-y-4">
+            <div class="p-8 text-center text-slate-400 font-medium">Memuat data...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: LAPORAN -->
+      <section id="tab-reports" class="tab-content hidden">
+        <div class="space-y-6">
+          
+          <!-- FILTER BULAN LAPORAN -->
+          <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between gap-4">
+            <label class="text-xs font-bold text-slate-600 uppercase tracking-wider">Pilih Bulan Laporan:</label>
+            <input type="month" id="reportMonthFilter" onchange="renderReports(window.ordersList)" class="px-4 py-2 rounded-xl border border-slate-300 text-sm font-bold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-600">
+          </div>
+
+          <!-- Card Ringkasan Bulan Terpilih -->
+          <div class="bg-gradient-to-tr from-blue-600 via-blue-700 to-indigo-700 p-6 md:p-8 rounded-2xl text-white shadow-xl shadow-blue-600/20 relative overflow-hidden">
+            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+            <h2 id="reportTitleMonth" class="text-xs font-bold text-blue-200 uppercase tracking-wider mb-1">Total Omzet Jasa Bulan Ini</h2>
+            <div id="monthlyTotalRevenue" class="text-3xl md:text-4xl font-extrabold mb-4 tracking-tight">Rp 0</div>
+            <div class="flex items-center gap-2 border-t border-white/20 pt-4 text-xs font-medium text-blue-100">
+              <span class="bg-white/20 px-2.5 py-1 rounded-lg"><span id="monthlyTotalOrders" class="font-bold">0</span> Order Selesai</span>
+            </div>
+          </div>
+
+          <!-- Rekap Per Teknisi -->
+          <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200/80">
+            <h3 class="text-base font-bold text-slate-900 mb-5 flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm shadow-inner">
+                <i class="fa-solid fa-users"></i>
+              </div>
+              Perolehan Jasa Per Teknisi 
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="technicianReportContainer">
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-6 py-3 flex justify-around items-center z-50 shadow-xl">
+      <button onclick="switchTab('input')" id="m-nav-input" class="flex flex-col items-center gap-1 text-blue-600 transition-all duration-200 active:scale-90">
+        <i class="fa-solid fa-plus-circle text-lg"></i>
+        <span class="text-[10px] font-bold tracking-wide">Input</span>
+      </button>
+      <button onclick="switchTab('orders')" id="m-nav-orders" class="flex flex-col items-center gap-1 text-slate-400 transition-all duration-200 active:scale-90">
+        <i class="fa-solid fa-list-check text-lg"></i>
+        <span class="text-[10px] font-bold tracking-wide">Orderan</span>
+      </button>
+      <button onclick="switchTab('reports')" id="m-nav-reports" class="flex flex-col items-center gap-1 text-slate-400 transition-all duration-200 active:scale-90">
+        <i class="fa-solid fa-chart-line text-lg"></i>
+        <span class="text-[10px] font-bold tracking-wide">Laporan</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyTestKeyForSimulationOnly-12345",
+      authDomain: "jasa-ac-listrik-default.firebaseapp.com",
+      projectId: "jasa-ac-listrik-default",
+      storageBucket: "jasa-ac-listrik-default.appspot.com",
+      messagingSenderId: "1234567890",
+      appId: "1:1234567890:web:abcdef123456"
+    };
+
+    let db = null;
+    let useLocalStorage = true;
+
+    try {
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+      useLocalStorage = false;
+    } catch (e) {
+      console.log("Menggunakan LocalStorage untuk pengujian lokal.");
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const today = new Date().toISOString().split('T')[0];
+      const currentMonth = today.substring(0, 7);
+
+      const dateInput = document.getElementById('installationDate');
+      if(dateInput) dateInput.value = today;
+
+      const monthFilter = document.getElementById('reportMonthFilter');
+      if(monthFilter) monthFilter.value = currentMonth;
+      
+      loadOrders();
+    });
+
+    window.ordersList = [];
+
+    window.saveOrder = async function(event) {
+      event.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      const submitIcon = document.getElementById('submitIcon');
+      const submitText = document.getElementById('submitText');
+
+      // 1. Ubah tombol jadi abu-abu (Disabled / Loading)
+      submitBtn.disabled = true;
+      submitBtn.className = "w-full bg-slate-400 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 text-sm cursor-not-allowed mt-2 shadow-none";
+      submitIcon.className = "fa-solid fa-spinner fa-spin";
+      submitText.innerText = "Menyimpan Orderan...";
+
+      const installationDate = document.getElementById('installationDate').value;
+      const technician = document.getElementById('technician').value;
+      const customerName = document.getElementById('customerName').value;
+      const address = document.getElementById('address').value;
+      const serviceType = document.getElementById('serviceType').value;
+      const channel = document.getElementById('channel').value;
+      const quantity = document.getElementById('quantity').value;
+      const fee = document.getElementById('fee').value;
+
+      const orderData = {
+        installationDate,
+        technician,
+        customerName,
+        address,
+        serviceType,
+        channel,
+        quantity: Number(quantity),
+        fee: Number(fee),
+        month: installationDate.substring(0, 7),
+        createdAt: Date.now()
+      };
+
+      try {
+        if (!useLocalStorage && db) {
+          await addDoc(collection(db, "orders"), orderData);
+        } else {
+          let localData = JSON.parse(localStorage.getItem('local_orders') || '[]');
+          orderData.id = 'loc_' + Date.now();
+          localData.push(orderData);
+          localStorage.setItem('local_orders', JSON.stringify(localData));
+        }
+
+        // 2. Kosongkan form setelah sukses, tanggal kembali ke hari ini
+        document.getElementById('orderForm').reset();
+        document.getElementById('installationDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('quantity').value = '1';
+        
+        loadOrders();
+        switchTab('orders'); // Pindah otomatis ke daftar order
+      } catch (error) {
+        console.error("Gagal menyimpan:", error);
+        alert("Terjadi kesalahan saat menyimpan data.");
+      } finally {
+        // 3. Kembalikan tombol ke warna biru normal
+        submitBtn.disabled = false;
+        submitBtn.className = "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all duration-200 shadow-lg shadow-blue-600/25 hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 text-sm cursor-pointer mt-2";
+        submitIcon.className = "fa-solid fa-floppy-disk";
+        submitText.innerText = "Simpan Orderan";
+      }
+    }
+
+    window.loadOrders = function() {
+      if (!useLocalStorage && db) {
+        const q = query(collection(db, "orders"), orderBy("installationDate", "desc"));
+        onSnapshot(q, (snapshot) => {
+          window.ordersList = [];
+          snapshot.forEach((docSnap) => {
+            window.ordersList.push({ id: docSnap.id, ...docSnap.data() });
+          });
+          renderOrdersAndReports();
+        });
+      } else {
+        const localData = JSON.parse(localStorage.getItem('local_orders') || '[]');
+        window.ordersList = localData.sort((a, b) => b.installationDate.localeCompare(a.installationDate));
+        renderOrdersAndReports();
+      }
+    }
+
+    window.deleteOrder = async function(id) {
+      if (confirm("Yakin ingin menghapus data orderan ini?")) {
+        if (!useLocalStorage && db) {
+          await deleteDoc(doc(db, "orders", id));
+        } else {
+          let localData = JSON.parse(localStorage.getItem('local_orders') || '[]');
+          localData = localData.filter(item => item.id !== id);
+          localStorage.setItem('local_orders', JSON.stringify(localData));
+          loadOrders();
+        }
+      }
+    }
+
+    function renderOrdersAndReports() {
+      const container = document.getElementById('orderListContainer');
+      const countBadge = document.getElementById('orderCount');
+      container.innerHTML = '';
+      
+      countBadge.innerText = window.ordersList.length + ' Order';
+
+      if (window.ordersList.length === 0) {
+        container.innerHTML = `<div class="p-8 text-center text-slate-400 font-medium">Belum ada orderan masuk.</div>`;
+        renderReports([]);
+        return;
+      }
+
+      window.ordersList.forEach(order => {
+        const card = document.createElement('div');
+        card.className = "bg-white p-4.5 rounded-2xl border border-slate-200/85 shadow-sm hover:border-blue-200 transition-all space-y-3";
+        card.innerHTML = `
+          <div class="flex justify-between items-start gap-2">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs bg-blue-50 text-blue-700 font-bold px-2.5 py-0.5 rounded-md border border-blue-100">${order.installationDate}</span>
+                <span class="text-xs bg-slate-100 text-slate-700 font-bold px-2.5 py-0.5 rounded-md"><i class="fa-solid fa-user-gear text-blue-600"></i> ${order.technician}</span>
+              </div>
+              <h3 class="font-bold text-slate-900 text-base mt-1">${order.customerName}</h3>
+              <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">${order.address}</p>
+            </div>
+            <button onclick="deleteOrder('${order.id}')" class="text-slate-300 hover:text-red-600 p-2 transition-colors cursor-pointer rounded-lg hover:bg-red-50" title="Hapus">
+              <i class="fa-solid fa-trash-can text-sm"></i>
+            </button>
+          </div>
+
+          <div class="bg-slate-50 p-3 rounded-xl flex justify-between items-center text-xs border border-slate-100">
+            <div>
+              <div class="font-bold text-slate-800">${order.serviceType}</div>
+              <div class="text-slate-500 mt-0.5">Qty: ${order.quantity} Unit/Titik • Asal: ${order.channel}</div>
+            </div>
+            <div class="text-right">
+              <div class="text-[10px] uppercase font-semibold text-slate-400">Biaya Jasa</div>
+              <div class="font-extrabold text-slate-900 text-sm">Rp ${order.fee.toLocaleString('id-ID')}</div>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      renderReports(window.ordersList);
+    }
+
+    window.renderReports = function(data) {
+      const monthFilterInput = document.getElementById('reportMonthFilter');
+      const selectedMonth = monthFilterInput ? monthFilterInput.value : new Date().toISOString().substring(0, 7);
+      
+      const [year, month] = selectedMonth.split('-');
+      const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      const formattedMonthName = monthNames[parseInt(month) - 1] + " " + year;
+      
+      document.getElementById('reportTitleMonth').innerText = "Total Omzet Jasa Bulan " + formattedMonthName;
+
+      const monthlyData = data.filter(item => item.month === selectedMonth);
+      
+      const totalRevenue = monthlyData.reduce((sum, item) => sum + Number(item.fee), 0);
+      document.getElementById('monthlyTotalRevenue').innerText = 'Rp ' + totalRevenue.toLocaleString('id-ID');
+      document.getElementById('monthlyTotalOrders').innerText = monthlyData.length;
+
+      const techStats = {
+        'JHON': { count: 0, revenue: 0 },
+        'MADUN': { count: 0, revenue: 0 },
+        'RONI': { count: 0, revenue: 0 }
+      };
+
+      monthlyData.forEach(item => {
+        if (techStats[item.technician]) {
+          techStats[item.technician].count += 1;
+          techStats[item.technician].revenue += Number(item.fee);
+        }
+      });
+
+      const techContainer = document.getElementById('technicianReportContainer');
+      techContainer.innerHTML = '';
+
+      Object.keys(techStats).forEach(techName => {
+        const stat = techStats[techName];
+        const card = document.createElement('div');
+        card.className = "bg-slate-50/80 p-5 rounded-2xl border border-slate-200/80 hover:border-blue-200 transition-all shadow-sm";
+        card.innerHTML = `
+          <div class="flex justify-between items-center mb-3">
+            <span class="font-bold text-slate-900 text-sm flex items-center gap-2">
+              <div class="w-2 h-2 rounded-full bg-blue-600"></div> ${techName}
+            </span>
+            <span class="text-xs bg-blue-100/70 text-blue-700 font-bold px-2.5 py-1 rounded-full">${stat.count} Job</span>
+          </div>
+          <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Total Jasa Bulan Ini:</div>
+          <div class="text-lg font-extrabold text-slate-900">Rp ${stat.revenue.toLocaleString('id-ID')}</div>
+        `;
+        techContainer.appendChild(card);
+      });
+    }
+
+  </script>
+
+  <script>
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById('tab-' + tabName).classList.remove('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-blue-600', 'text-white', 'shadow-md', 'shadow-blue-600/20');
+        btn.classList.add('hover:bg-slate-800/80', 'text-slate-300');
+      });
+      const activeNav = document.getElementById('nav-' + tabName);
+      if(activeNav) {
+        activeNav.classList.remove('hover:bg-slate-800/80', 'text-slate-300');
+        activeNav.classList.add('bg-blue-600', 'text-white', 'shadow-md', 'shadow-blue-600/20');
+      }
+
+      ['input', 'orders', 'reports'].forEach(t => {
+        const mBtn = document.getElementById('m-nav-' + t);
+        if(mBtn) {
+          mBtn.classList.remove('text-blue-600');
+          mBtn.classList.add('text-slate-400');
+        }
+      });
+      const activeMBtn = document.getElementById('m-nav-' + tabName);
+      if(activeMBtn) {
+        activeMBtn.classList.remove('text-slate-400');
+        activeMBtn.classList.add('text-blue-600');
+      }
+    }
+  </script>
+
+</body>
+</html>
