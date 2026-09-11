@@ -99,7 +99,7 @@
                   <option value="JHON">JHON</option>
                   <option value="MADUN">MADUN</option>
                   <option value="RONI">RONI</option>
-                   <option value="JOKO">JOKO</option>
+                  <option value="JOKO">JOKO</option>
                 </select>
               </div>
             </div>
@@ -123,7 +123,6 @@
                 <option value="Instalasi AC">Instalasi AC</option>
                 <option value="Instalasi Listrik">Instalasi Listrik</option>
                 <option value="Instalasi Water Heater">Instalasi Water Heater</option>
-          
               </select>
             </div>
 
@@ -232,34 +231,26 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyTestKeyForSimulationOnly-12345",
-      authDomain: "jasa-ac-listrik-default.firebaseapp.com",
-      projectId: "jasa-ac-listrik-default",
-      storageBucket: "jasa-ac-listrik-default.appspot.com",
-      messagingSenderId: "1234567890",
-      appId: "1:1234567890:web:abcdef123456"
-    };
-
     let db = null;
     let useLocalStorage = false;
 
     try {
-  const firebaseConfig = {
-    apiKey: "AIzaSyBooALcu7H0l-yDij4U-qwFwGa6Q7LZ41c",
-    authDomain: "pijar-elektrik.firebaseapp.com",
-    projectId: "pijar-elektrik",
-    storageBucket: "pijar-elektrik.firebasestorage.app",
-    messagingSenderId: "803265339764",
-    appId: "1:803265339764:web:e3d063aecfa616d3384c21"
-  };
+      const firebaseConfig = {
+        apiKey: "AIzaSyBooALcu7H0l-yDij4U-qwFwGa6Q7LZ41c",
+        authDomain: "pijar-elektrik.firebaseapp.com",
+        projectId: "pijar-elektrik",
+        storageBucket: "pijar-elektrik.firebasestorage.app",
+        messagingSenderId: "803265339764",
+        appId: "1:803265339764:web:e3d063aecfa616d3384c21"
+      };
 
-  const app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
-  useLocalStorage = false;
-} catch (e) {
-  console.log("Menggunakan LocalStorage untuk pengujian lokal.");
-}
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+      useLocalStorage = false;
+    } catch (e) {
+      console.log("Menggunakan LocalStorage untuk pengujian lokal.");
+      useLocalStorage = true;
+    }
 
     document.addEventListener("DOMContentLoaded", () => {
       const today = new Date().toISOString().split('T')[0];
@@ -283,7 +274,6 @@
       const submitIcon = document.getElementById('submitIcon');
       const submitText = document.getElementById('submitText');
 
-      // 1. Ubah tombol jadi abu-abu (Disabled / Loading)
       submitBtn.disabled = true;
       submitBtn.className = "w-full bg-slate-400 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 text-sm cursor-not-allowed mt-2 shadow-none";
       submitIcon.className = "fa-solid fa-spinner fa-spin";
@@ -321,18 +311,16 @@
           localStorage.setItem('local_orders', JSON.stringify(localData));
         }
 
-        // 2. Kosongkan form setelah sukses, tanggal kembali ke hari ini
         document.getElementById('orderForm').reset();
         document.getElementById('installationDate').value = new Date().toISOString().split('T')[0];
         document.getElementById('quantity').value = '1';
         
         loadOrders();
-        switchTab('orders'); // Pindah otomatis ke daftar order
+        switchTab('orders');
       } catch (error) {
         console.error("Gagal menyimpan:", error);
         alert("Terjadi kesalahan saat menyimpan data.");
       } finally {
-        // 3. Kembalikan tombol ke warna biru normal
         submitBtn.disabled = false;
         submitBtn.className = "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all duration-200 shadow-lg shadow-blue-600/25 hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 text-sm cursor-pointer mt-2";
         submitIcon.className = "fa-solid fa-floppy-disk";
@@ -437,7 +425,8 @@
       const techStats = {
         'JHON': { count: 0, revenue: 0 },
         'MADUN': { count: 0, revenue: 0 },
-        'RONI': { count: 0, revenue: 0 }
+        'RONI': { count: 0, revenue: 0 },
+        'JOKO': { count: 0, revenue: 0 }
       };
 
       monthlyData.forEach(item => {
