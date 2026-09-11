@@ -28,8 +28,36 @@
 </head>
 <body class="bg-slate-50/50 text-slate-800 pb-24 md:pb-0 antialiased selection:bg-blue-600 selection:text-white">
 
-  <!-- APP CONTAINER -->
-  <div id="app" class="min-h-screen flex flex-col md:flex-row">
+  <!-- HALAMAN LOGIN (MUNCUL JIKA BELUM LOGIN) -->
+  <div id="loginPage" class="min-h-screen flex items-center justify-center p-4 bg-slate-900 fixed inset-0 z-50">
+    <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full border border-slate-100">
+      <div class="text-center mb-8">
+        <div class="w-14 h-14 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white text-2xl shadow-lg shadow-blue-500/30 mb-4">
+          <i class="fa-solid fa-bolt-lightning"></i>
+        </div>
+        <h1 class="text-xl font-extrabold text-slate-900 tracking-wide">PIJAR ELEKTRIK</h1>
+        <p class="text-xs text-slate-500 mt-1">Silakan login untuk masuk ke dashboard owner</p>
+      </div>
+
+      <form onsubmit="handleLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Email Owner</label>
+          <input type="email" id="loginEmail" required placeholder="owner@pijarelektrik.com" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm bg-slate-50 font-medium">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Password</label>
+          <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm bg-slate-50 font-medium">
+        </div>
+        <div id="loginError" class="text-xs text-red-600 font-semibold hidden text-center"></div>
+        <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/25 text-sm cursor-pointer mt-2">
+          Login ke Dashboard
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- APP CONTAINER (TERSEMBUNYI SEBELUM LOGIN) -->
+  <div id="app" class="min-h-screen flex flex-col md:flex-row hidden">
     
     <!-- DESKTOP SIDEBAR -->
     <aside class="hidden md:flex flex-col w-72 bg-slate-900 text-white min-h-screen p-6 sticky top-0 h-screen shadow-xl border-r border-slate-800/80">
@@ -52,9 +80,16 @@
           <i class="fa-solid fa-chart-line w-5 text-base"></i> Laporan
         </button>
       </nav>
-      <div class="text-xs text-slate-500 pt-4 border-t border-slate-800/80 flex items-center justify-between">
-        <span>Pijar Elektrik</span>
-        <span class="bg-slate-800 text-slate-400 px-2 py-0.5 rounded text-[10px] font-semibold">v1.0</span>
+
+      <!-- TOMBOL LOGOUT -->
+      <div class="pt-4 border-t border-slate-800/80 space-y-3">
+        <button onclick="handleLogout()" class="w-full text-left px-4 py-2.5 rounded-xl hover:bg-red-500/10 text-red-400 flex items-center gap-3 font-medium text-xs transition-all cursor-pointer">
+          <i class="fa-solid fa-right-from-bracket w-4"></i> Keluar (Logout)
+        </button>
+        <div class="text-xs text-slate-500 flex items-center justify-between">
+          <span>Pijar Elektrik</span>
+          <span class="bg-slate-800 text-slate-400 px-2 py-0.5 rounded text-[10px] font-semibold">v1.0</span>
+        </div>
       </div>
     </aside>
 
@@ -70,7 +105,9 @@
             <p class="text-[10px] text-blue-600 font-semibold uppercase tracking-wide">AC & Listrik Service</p>
           </div>
         </div>
-        <span class="text-xs bg-blue-50 text-blue-700 font-bold px-3 py-1 rounded-full border border-blue-100">Owner</span>
+        <button onclick="handleLogout()" class="text-xs bg-red-50 text-red-600 font-bold px-3 py-1.5 rounded-xl border border-red-100 flex items-center gap-1.5 cursor-pointer">
+          <i class="fa-solid fa-power-off"></i> Logout
+        </button>
       </header>
 
       <!-- TAB 1: FORM INPUT ORDER -->
@@ -90,11 +127,11 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Tanggal Instalasi / Pengerjaan</label>
-                <input type="date" id="installationDate" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium transition-all">
+                <input type="date" id="installationDate" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium">
               </div>
               <div>
                 <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Nama Teknisi</label>
-                <select id="technician" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium transition-all">
+                <select id="technician" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium">
                   <option value="" disabled selected>-- Pilih Teknisi --</option>
                   <option value="JHON">JHON</option>
                   <option value="MADUN">MADUN</option>
@@ -106,17 +143,17 @@
 
             <div>
               <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Nama Customer</label>
-              <input type="text" id="customerName" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium transition-all">
+              <input type="text" id="customerName" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium">
             </div>
 
             <div>
               <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Alamat / Lokasi</label>
-              <textarea id="address" rows="2" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium transition-all"></textarea>
+              <textarea id="address" rows="2" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium"></textarea>
             </div>
 
             <div>
               <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Jenis Pekerjaan</label>
-              <select id="serviceType" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium transition-all">
+              <select id="serviceType" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium">
                 <option value="" disabled selected>-- Pilih Jenis Pekerjaan --</option>
                 <option value="Cleaning">Cleaning</option>
                 <option value="Service">Service</option>
@@ -129,11 +166,11 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Asal Orderan</label>
-                <input type="text" id="channel" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium transition-all">
+                <input type="text" id="channel" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium">
               </div>
               <div>
                 <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Jumlah Pekerjaan (Unit/Titik)</label>
-                <input type="number" id="quantity" min="1" value="1" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium transition-all">
+                <input type="number" id="quantity" min="1" value="1" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium">
               </div>
             </div>
 
@@ -141,12 +178,11 @@
               <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Harga Jasa (Total Rp)</label>
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-sm font-bold text-slate-400">Rp</span>
-                <input type="number" id="fee" required class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium transition-all">
+                <input type="number" id="fee" required class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm bg-slate-50/50 font-medium">
               </div>
             </div>
 
-            <!-- Tombol Simpan -->
-            <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all duration-200 shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 text-sm cursor-pointer mt-2">
+            <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 text-sm cursor-pointer mt-2">
               <i class="fa-solid fa-floppy-disk" id="submitIcon"></i> 
               <span id="submitText">Simpan Orderan</span>
             </button>
@@ -164,7 +200,6 @@
             </div>
             <span id="orderCount" class="text-xs bg-blue-50 text-blue-700 font-bold px-3 py-1.5 rounded-full border border-blue-100">0 Order</span>
           </div>
-          
           <div id="orderListContainer" class="space-y-4">
             <div class="p-8 text-center text-slate-400 font-medium">Memuat data...</div>
           </div>
@@ -174,14 +209,11 @@
       <!-- TAB 3: LAPORAN -->
       <section id="tab-reports" class="tab-content hidden">
         <div class="space-y-6">
-          
-          <!-- FILTER BULAN LAPORAN -->
           <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between gap-4">
             <label class="text-xs font-bold text-slate-600 uppercase tracking-wider">Pilih Bulan Laporan:</label>
             <input type="month" id="reportMonthFilter" onchange="renderReports(window.ordersList)" class="px-4 py-2 rounded-xl border border-slate-300 text-sm font-bold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-600">
           </div>
 
-          <!-- Card Ringkasan Bulan Terpilih -->
           <div class="bg-gradient-to-tr from-blue-600 via-blue-700 to-indigo-700 p-6 md:p-8 rounded-2xl text-white shadow-xl shadow-blue-600/20 relative overflow-hidden">
             <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
             <h2 id="reportTitleMonth" class="text-xs font-bold text-blue-200 uppercase tracking-wider mb-1">Total Omzet Jasa Bulan Ini</h2>
@@ -191,7 +223,6 @@
             </div>
           </div>
 
-          <!-- Rekap Per Teknisi -->
           <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200/80">
             <h3 class="text-base font-bold text-slate-900 mb-5 flex items-center gap-2.5">
               <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm shadow-inner">
@@ -202,7 +233,6 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="technicianReportContainer">
             </div>
           </div>
-
         </div>
       </section>
 
@@ -210,15 +240,15 @@
 
     <!-- MOBILE BOTTOM NAVIGATION -->
     <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-6 py-3 flex justify-around items-center z-50 shadow-xl">
-      <button onclick="switchTab('input')" id="m-nav-input" class="flex flex-col items-center gap-1 text-blue-600 transition-all duration-200 active:scale-90">
+      <button onclick="switchTab('input')" id="m-nav-input" class="flex flex-col items-center gap-1 text-blue-600 transition-all active:scale-90">
         <i class="fa-solid fa-plus-circle text-lg"></i>
         <span class="text-[10px] font-bold tracking-wide">Input</span>
       </button>
-      <button onclick="switchTab('orders')" id="m-nav-orders" class="flex flex-col items-center gap-1 text-slate-400 transition-all duration-200 active:scale-90">
+      <button onclick="switchTab('orders')" id="m-nav-orders" class="flex flex-col items-center gap-1 text-slate-400 transition-all active:scale-90">
         <i class="fa-solid fa-list-check text-lg"></i>
         <span class="text-[10px] font-bold tracking-wide">Orderan</span>
       </button>
-      <button onclick="switchTab('reports')" id="m-nav-reports" class="flex flex-col items-center gap-1 text-slate-400 transition-all duration-200 active:scale-90">
+      <button onclick="switchTab('reports')" id="m-nav-reports" class="flex flex-col items-center gap-1 text-slate-400 transition-all active:scale-90">
         <i class="fa-solid fa-chart-line text-lg"></i>
         <span class="text-[10px] font-bold tracking-wide">Laporan</span>
       </button>
@@ -230,8 +260,10 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     let db = null;
+    let auth = null;
     let useLocalStorage = false;
 
     try {
@@ -246,13 +278,56 @@
 
       const app = initializeApp(firebaseConfig);
       db = getFirestore(app);
+      auth = getAuth(app);
       useLocalStorage = false;
     } catch (e) {
-      console.log("Menggunakan LocalStorage untuk pengujian lokal.");
-      useLocalStorage = true;
+      console.log("Inisialisasi Firebase gagal:", e);
     }
 
+    // CEK STATUS LOGIN OTOMATIS
     document.addEventListener("DOMContentLoaded", () => {
+      if (auth) {
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            initApp();
+          } else {
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('app').classList.add('hidden');
+          }
+        });
+      }
+    });
+
+    // FUNGSI HANDLE LOGIN
+    window.handleLogin = async function(event) {
+      event.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const pass = document.getElementById('loginPassword').value;
+      const errBox = document.getElementById('loginError');
+      const btn = document.getElementById('loginBtn');
+
+      errBox.classList.add('hidden');
+      btn.innerText = "Memverifikasi...";
+
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+      } catch (error) {
+        errBox.innerText = "Login gagal! Email atau password salah.";
+        errBox.classList.remove('hidden');
+        btn.innerText = "Login ke Dashboard";
+      }
+    }
+
+    // FUNGSI HANDLE LOGOUT
+    window.handleLogout = async function() {
+      if (confirm("Yakin ingin keluar dari aplikasi?")) {
+        await signOut(auth);
+      }
+    }
+
+    function initApp() {
       const today = new Date().toISOString().split('T')[0];
       const currentMonth = today.substring(0, 7);
 
@@ -263,7 +338,7 @@
       if(monthFilter) monthFilter.value = currentMonth;
       
       loadOrders();
-    });
+    }
 
     window.ordersList = [];
 
@@ -302,59 +377,39 @@
       };
 
       try {
-        if (!useLocalStorage && db) {
-          await addDoc(collection(db, "orders"), orderData);
-        } else {
-          let localData = JSON.parse(localStorage.getItem('local_orders') || '[]');
-          orderData.id = 'loc_' + Date.now();
-          localData.push(orderData);
-          localStorage.setItem('local_orders', JSON.stringify(localData));
-        }
+        await addDoc(collection(db, "orders"), orderData);
 
         document.getElementById('orderForm').reset();
         document.getElementById('installationDate').value = new Date().toISOString().split('T')[0];
         document.getElementById('quantity').value = '1';
         
         loadOrders();
-        
+        // Tetap di halaman input setelah simpan
       } catch (error) {
         console.error("Gagal menyimpan:", error);
         alert("Terjadi kesalahan saat menyimpan data.");
       } finally {
         submitBtn.disabled = false;
-        submitBtn.className = "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all duration-200 shadow-lg shadow-blue-600/25 hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 text-sm cursor-pointer mt-2";
+        submitBtn.className = "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 text-sm cursor-pointer mt-2";
         submitIcon.className = "fa-solid fa-floppy-disk";
         submitText.innerText = "Simpan Orderan";
       }
     }
 
     window.loadOrders = function() {
-      if (!useLocalStorage && db) {
-        const q = query(collection(db, "orders"), orderBy("installationDate", "desc"));
-        onSnapshot(q, (snapshot) => {
-          window.ordersList = [];
-          snapshot.forEach((docSnap) => {
-            window.ordersList.push({ id: docSnap.id, ...docSnap.data() });
-          });
-          renderOrdersAndReports();
+      const q = query(collection(db, "orders"), orderBy("installationDate", "desc"));
+      onSnapshot(q, (snapshot) => {
+        window.ordersList = [];
+        snapshot.forEach((docSnap) => {
+          window.ordersList.push({ id: docSnap.id, ...docSnap.data() });
         });
-      } else {
-        const localData = JSON.parse(localStorage.getItem('local_orders') || '[]');
-        window.ordersList = localData.sort((a, b) => b.installationDate.localeCompare(a.installationDate));
         renderOrdersAndReports();
-      }
+      });
     }
 
     window.deleteOrder = async function(id) {
       if (confirm("Yakin ingin menghapus data orderan ini?")) {
-        if (!useLocalStorage && db) {
-          await deleteDoc(doc(db, "orders", id));
-        } else {
-          let localData = JSON.parse(localStorage.getItem('local_orders') || '[]');
-          localData = localData.filter(item => item.id !== id);
-          localStorage.setItem('local_orders', JSON.stringify(localData));
-          loadOrders();
-        }
+        await deleteDoc(doc(db, "orders", id));
       }
     }
 
@@ -481,10 +536,12 @@
           mBtn.classList.add('text-slate-400');
         }
       });
-      const activeMBtn = document.getElementById('m-nav-' + tabName);
-      if(activeMBtn) {
-        activeMBtn.classList.remove('text-slate-400');
-        activeMBtn.classList.add('text-blue-600');
+      const activeMBtn = document.getElementById('m-nav-' + mBtnName || 'm-nav-' + tabName);
+      // fallback aman
+      const activeMBtnTarget = document.getElementById('m-nav-' + tabName);
+      if(activeMBtnTarget) {
+        activeMBtnTarget.classList.remove('text-slate-400');
+        activeMBtnTarget.classList.add('text-blue-600');
       }
     }
   </script>
