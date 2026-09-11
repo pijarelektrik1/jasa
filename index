@@ -242,15 +242,24 @@
     };
 
     let db = null;
-    let useLocalStorage = true;
+    let useLocalStorage = false;
 
     try {
-      const app = initializeApp(firebaseConfig);
-      db = getFirestore(app);
-      useLocalStorage = false;
-    } catch (e) {
-      console.log("Menggunakan LocalStorage untuk pengujian lokal.");
-    }
+  const firebaseConfig = {
+    apiKey: "AIzaSyBooALcu7H0l-yDij4U-qwFwGa6Q7LZ41c",
+    authDomain: "pijar-elektrik.firebaseapp.com",
+    projectId: "pijar-elektrik",
+    storageBucket: "pijar-elektrik.firebasestorage.app",
+    messagingSenderId: "803265339764",
+    appId: "1:803265339764:web:e3d063aecfa616d3384c21"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  useLocalStorage = false;
+} catch (e) {
+  console.log("Menggunakan LocalStorage untuk pengujian lokal.");
+}
 
     document.addEventListener("DOMContentLoaded", () => {
       const today = new Date().toISOString().split('T')[0];
