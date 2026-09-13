@@ -42,7 +42,7 @@
           <input type="password" id="pinInput" maxlength="6" required placeholder="••••" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-center text-2xl tracking-widest bg-slate-50 font-bold">
         </div>
         <div id="pinError" class="text-xs text-red-600 font-semibold hidden">PIN Salah! Coba lagi.</div>
-        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/25 text-sm cursor-pointer">
+        <button type="submit" id="unlockBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/25 text-sm cursor-pointer">
           Buka Dashboard
         </button>
       </form>
@@ -263,7 +263,7 @@
               <input type="password" id="confirmPin" maxlength="6" required placeholder="••••" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm bg-slate-50 font-medium">
             </div>
             <div id="settingsMsg" class="text-xs font-semibold hidden text-center p-2.5 rounded-xl"></div>
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/25 text-sm cursor-pointer mt-2">
+            <button type="submit" id="savePinBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/25 text-sm cursor-pointer mt-2">
               Simpan PIN Baru
             </button>
           </form>
@@ -297,7 +297,7 @@
   <!-- JAVASCRIPT LOGIC -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     let db = null;
 
@@ -317,7 +317,7 @@
       console.log("Inisialisasi Firebase gagal:", e);
     }
 
-    // FUNGSI ENKRIPSI SHA-256 (AGAR PIN TIDAK BISA DIBACA DI INSPECT ELEMENT)
+    // FUNGSI ENKRIPSI SHA-256
     async function hashPin(pin) {
       const msgBuffer = new TextEncoder().encode(pin);
       const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -325,17 +325,27 @@
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // MENDAPATKAN HASH PIN (DEFAULT "1234")
+    // MENGAMBIL HASH PIN DARI FIRESTORE (CLOUD)
     async function getStoredPinHash() {
-      let stored = localStorage.getItem("pijar_owner_pin_hash");
-      if (!stored) {
-        stored = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
-        localStorage.setItem("pijar_owner_pin_hash", stored);
+      try {
+        const pinDocRef = doc(db, "settings", "security");
+        const docSnap = await getDoc(pinDocRef);
+        if (docSnap.exists()) {
+          return docSnap.data().pinHash;
+        } else {
+          // Jika belum ada di database, buat default "1234" yang sudah di-hash
+          const defaultHash = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
+          await setDoc(pinDocRef, { pinHash: defaultHash });
+          return defaultHash;
+        }
+      } catch (error) {
+        console.error("Gagal mengambil PIN dari Cloud:", error);
+        // Fallback jika offline
+        return "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
       }
-      return stored;
     }
 
-    // CEK APAKAH SUDAH MASUK PIN SEBELUMNYA
+    // CEK APAKAH SUDAH MASUK PIN SEBELUMNYA DI BROWSER INI
     document.addEventListener("DOMContentLoaded", () => {
       const isUnlocked = sessionStorage.getItem("pijar_unlocked");
       if (isUnlocked === "true") {
@@ -348,59 +358,87 @@
       event.preventDefault();
       const enteredPin = document.getElementById('pinInput').value;
       const errBox = document.getElementById('pinError');
+      const unlockBtn = document.getElementById('unlockBtn');
 
-      const enteredHash = await hashPin(enteredPin);
-      const correctHash = await getStoredPinHash();
+      errBox.classList.add('hidden');
+      unlockBtn.innerText = "Memeriksa...";
+      unlockBtn.disabled = true;
 
-      if (enteredHash === correctHash) {
-        sessionStorage.setItem("pijar_unlocked", "true");
-        unlockApp();
-      } else {
+      try {
+        const enteredHash = await hashPin(enteredPin);
+        const correctHash = await getStoredPinHash();
+
+        if (enteredHash === correctHash) {
+          sessionStorage.setItem("pijar_unlocked", "true");
+          unlockApp();
+        } else {
+          errBox.classList.remove('hidden');
+          document.getElementById('pinInput').value = '';
+        }
+      } catch (err) {
+        console.error(err);
+        errBox.innerText = "Koneksi database bermasalah!";
         errBox.classList.remove('hidden');
-        document.getElementById('pinInput').value = '';
+      } finally {
+        unlockBtn.innerText = "Buka Dashboard";
+        unlockBtn.disabled = false;
       }
     }
 
-    // FUNGSI GANTI PIN
+    // FUNGSI GANTI PIN KE CLOUD
     window.changePin = async function(event) {
       event.preventDefault();
       const oldPin = document.getElementById('oldPin').value;
       const newPin = document.getElementById('newPin').value;
       const confirmPin = document.getElementById('confirmPin').value;
       const msgBox = document.getElementById('settingsMsg');
+      const saveBtn = document.getElementById('savePinBtn');
 
       msgBox.classList.remove('hidden');
 
-      const oldPinHash = await hashPin(oldPin);
-      const correctHash = await getStoredPinHash();
+      try {
+        const oldPinHash = await hashPin(oldPin);
+        const correctHash = await getStoredPinHash();
 
-      if (oldPinHash !== correctHash) {
+        if (oldPinHash !== correctHash) {
+          msgBox.className = "text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-xl text-center";
+          msgBox.innerText = "PIN Lama salah!";
+          return;
+        }
+
+        if (newPin.length < 4) {
+          msgBox.className = "text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-xl text-center";
+          msgBox.innerText = "PIN Baru minimal 4 karakter!";
+          return;
+        }
+
+        if (newPin !== confirmPin) {
+          msgBox.className = "text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-xl text-center";
+          msgBox.innerText = "Konfirmasi PIN Baru tidak cocok!";
+          return;
+        }
+
+        saveBtn.disabled = true;
+        saveBtn.innerText = "Menyimpan ke Cloud...";
+
+        const newPinHash = await hashPin(newPin);
+        const pinDocRef = doc(db, "settings", "security");
+        await setDoc(pinDocRef, { pinHash: newPinHash });
+        
+        msgBox.className = "text-xs font-semibold text-emerald-600 bg-emerald-50 p-2.5 rounded-xl text-center";
+        msgBox.innerText = "PIN berhasil diubah dan disinkronkan ke cloud!";
+        
+        document.getElementById('oldPin').value = '';
+        document.getElementById('newPin').value = '';
+        document.getElementById('confirmPin').value = '';
+      } catch (error) {
+        console.error("Gagal ganti PIN:", error);
         msgBox.className = "text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-xl text-center";
-        msgBox.innerText = "PIN Lama salah!";
-        return;
+        msgBox.innerText = "Gagal menyimpan PIN ke database.";
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerText = "Simpan PIN Baru";
       }
-
-      if (newPin.length < 4) {
-        msgBox.className = "text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-xl text-center";
-        msgBox.innerText = "PIN Baru minimal 4 karakter!";
-        return;
-      }
-
-      if (newPin !== confirmPin) {
-        msgBox.className = "text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-xl text-center";
-        msgBox.innerText = "Konfirmasi PIN Baru tidak cocok!";
-        return;
-      }
-
-      const newPinHash = await hashPin(newPin);
-      localStorage.setItem("pijar_owner_pin_hash", newPinHash);
-      
-      msgBox.className = "text-xs font-semibold text-emerald-600 bg-emerald-50 p-2.5 rounded-xl text-center";
-      msgBox.innerText = "PIN berhasil diubah secara aman!";
-      
-      document.getElementById('oldPin').value = '';
-      document.getElementById('newPin').value = '';
-      document.getElementById('confirmPin').value = '';
     }
 
     function unlockApp() {
@@ -477,7 +515,7 @@
         loadOrders();
       } catch (error) {
         console.error("Gagal menyimpan:", error);
-        alert("Terjadi kesalahan saat menyimpan data.");
+        alert("Terjadi kesalahan saat menyimpan data. Pastikan Firestore rules Anda sudah diatur ke public (allow read, write: if true).");
       } finally {
         submitBtn.disabled = false;
         submitBtn.className = "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 text-sm cursor-pointer mt-2";
