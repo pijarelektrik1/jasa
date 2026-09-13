@@ -28,29 +28,22 @@
 </head>
 <body class="bg-slate-50/50 text-slate-800 pb-24 md:pb-0 antialiased selection:bg-blue-600 selection:text-white">
 
-  <!-- HALAMAN LOGIN -->
-  <div id="loginPage" class="min-h-screen flex items-center justify-center p-4 bg-slate-900 fixed inset-0 z-50">
-    <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full border border-slate-100">
-      <div class="text-center mb-6">
-        <div class="w-14 h-14 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white text-2xl shadow-lg shadow-blue-500/30 mb-4">
-          <i class="fa-solid fa-bolt-lightning"></i>
-        </div>
-        <h1 class="text-xl font-extrabold text-slate-900 tracking-wide">PIJAR ELEKTRIK</h1>
-        <p class="text-xs text-slate-500 mt-1">Silakan login menggunakan akun owner</p>
+  <!-- HALAMAN LOCK SCREEN PIN -->
+  <div id="pinLockPage" class="min-h-screen flex items-center justify-center p-4 bg-slate-900 fixed inset-0 z-50">
+    <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-sm w-full border border-slate-100 text-center">
+      <div class="w-14 h-14 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white text-2xl shadow-lg shadow-blue-500/30 mb-4">
+        <i class="fa-solid fa-lock"></i>
       </div>
+      <h1 class="text-xl font-extrabold text-slate-900 tracking-wide">PIJAR ELEKTRIK</h1>
+      <p class="text-xs text-slate-500 mt-1 mb-6">Masukkan PIN Rahasia</p>
 
-      <form onsubmit="handleEmailLogin(event)" class="space-y-4">
+      <form onsubmit="handlePinSubmit(event)" class="space-y-4">
         <div>
-          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Email</label>
-          <input type="email" id="loginEmail" required value="pijarelektrik1@gmail.com" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm bg-slate-50 font-medium">
+          <input type="password" id="pinInput" maxlength="6" required placeholder="••••" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-center text-2xl tracking-widest bg-slate-50 font-bold">
         </div>
-        <div>
-          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Password</label>
-          <input type="password" id="loginPassword" required placeholder="Masukkan password Anda" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm bg-slate-50 font-medium">
-        </div>
-        <div id="loginError" class="text-xs text-red-600 font-semibold hidden text-center"></div>
-        <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/25 text-sm cursor-pointer mt-2">
-          Masuk ke Dashboard
+        <div id="pinError" class="text-xs text-red-600 font-semibold hidden">PIN Salah! Coba lagi.</div>
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/25 text-sm cursor-pointer">
+          Buka Dashboard
         </button>
       </form>
     </div>
@@ -79,11 +72,14 @@
         <button onclick="switchTab('reports')" id="nav-reports" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-slate-800/80 text-slate-300 flex items-center gap-3 font-medium text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
           <i class="fa-solid fa-chart-line w-5 text-base"></i> Laporan
         </button>
+        <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-slate-800/80 text-slate-300 flex items-center gap-3 font-medium text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
+          <i class="fa-solid fa-gear w-5 text-base"></i> Pengaturan PIN
+        </button>
       </nav>
 
       <div class="pt-4 border-t border-slate-800/80 space-y-3">
-        <button onclick="handleLogout()" class="w-full text-left px-4 py-2.5 rounded-xl hover:bg-red-500/10 text-red-400 flex items-center gap-3 font-medium text-xs transition-all cursor-pointer">
-          <i class="fa-solid fa-right-from-bracket w-4"></i> Keluar (Logout)
+        <button onclick="handleLock()" class="w-full text-left px-4 py-2.5 rounded-xl hover:bg-slate-800 text-slate-400 flex items-center gap-3 font-medium text-xs transition-all cursor-pointer">
+          <i class="fa-solid fa-lock w-4"></i> Kunci Layar (Lock)
         </button>
         <div class="text-xs text-slate-500 flex items-center justify-between">
           <span>Pijar Elektrik</span>
@@ -104,9 +100,14 @@
             <p class="text-[10px] text-blue-600 font-semibold uppercase tracking-wide">AC & Listrik Service</p>
           </div>
         </div>
-        <button onclick="handleLogout()" class="text-xs bg-red-50 text-red-600 font-bold px-3 py-1.5 rounded-xl border border-red-100 flex items-center gap-1.5 cursor-pointer">
-          <i class="fa-solid fa-power-off"></i> Logout
-        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="switchTab('settings')" class="text-xs bg-slate-100 text-slate-700 font-bold p-2.5 rounded-xl border border-slate-200 cursor-pointer">
+            <i class="fa-solid fa-gear"></i>
+          </button>
+          <button onclick="handleLock()" class="text-xs bg-slate-100 text-slate-700 font-bold px-3 py-2 rounded-xl border border-slate-200 flex items-center gap-1.5 cursor-pointer">
+            <i class="fa-solid fa-lock"></i> Lock
+          </button>
+        </div>
       </header>
 
       <!-- TAB 1: FORM INPUT ORDER -->
@@ -235,10 +236,44 @@
         </div>
       </section>
 
+      <!-- TAB 4: PENGATURAN / GANTI PIN -->
+      <section id="tab-settings" class="tab-content hidden">
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200/80 max-w-lg mx-auto">
+          <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg shadow-inner">
+              <i class="fa-solid fa-key"></i>
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Ubah PIN Keamanan</h2>
+              <p class="text-xs text-slate-500">Ganti PIN rahasia untuk akses dashboard.</p>
+            </div>
+          </div>
+
+          <form onsubmit="changePin(event)" class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">PIN Lama</label>
+              <input type="password" id="oldPin" maxlength="6" required placeholder="••••" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm bg-slate-50 font-medium">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">PIN Baru</label>
+              <input type="password" id="newPin" maxlength="6" required placeholder="••••" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm bg-slate-50 font-medium">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Konfirmasi PIN Baru</label>
+              <input type="password" id="confirmPin" maxlength="6" required placeholder="••••" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm bg-slate-50 font-medium">
+            </div>
+            <div id="settingsMsg" class="text-xs font-semibold hidden text-center p-2.5 rounded-xl"></div>
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/25 text-sm cursor-pointer mt-2">
+              Simpan PIN Baru
+            </button>
+          </form>
+        </div>
+      </section>
+
     </main>
 
     <!-- MOBILE BOTTOM NAVIGATION -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-6 py-3 flex justify-around items-center z-50 shadow-xl">
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-3 flex justify-around items-center z-50 shadow-xl">
       <button onclick="switchTab('input')" id="m-nav-input" class="flex flex-col items-center gap-1 text-blue-600 transition-all active:scale-90">
         <i class="fa-solid fa-plus-circle text-lg"></i>
         <span class="text-[10px] font-bold tracking-wide">Input</span>
@@ -251,6 +286,10 @@
         <i class="fa-solid fa-chart-line text-lg"></i>
         <span class="text-[10px] font-bold tracking-wide">Laporan</span>
       </button>
+      <button onclick="switchTab('settings')" id="m-nav-settings" class="flex flex-col items-center gap-1 text-slate-400 transition-all active:scale-90">
+        <i class="fa-solid fa-gear text-lg"></i>
+        <span class="text-[10px] font-bold tracking-wide">PIN</span>
+      </button>
     </nav>
 
   </div>
@@ -259,10 +298,8 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     let db = null;
-    let auth = null;
 
     try {
       const firebaseConfig = {
@@ -274,57 +311,112 @@
         appId: "1:803265339764:web:e3d063aecfa616d3384c21"
       };
 
-      const app = initializeApp(firebaseConfig);
+      const app = initializeApplication = initializeApp(firebaseConfig);
       db = getFirestore(app);
-      auth = getAuth(app);
     } catch (e) {
       console.log("Inisialisasi Firebase gagal:", e);
     }
 
-    // CEK STATUS LOGIN OTOMATIS
+    // FUNGSI ENKRIPSI SHA-256 (AGAR PIN TIDAK BISA DIBACA DI INSPECT ELEMENT)
+    async function hashPin(pin) {
+      const msgBuffer = new TextEncoder().encode(pin);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // MENDAPATKAN HASH PIN (DEFAULT "1234" YANG DI-HASH KELUARANNYA)
+    async function getStoredPinHash() {
+      let stored = localStorage.getItem("pijar_owner_pin_hash");
+      if (!stored) {
+        // Hash bawaan untuk angka "1234"
+        stored = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
+        localStorage.setItem("pijar_owner_pin_hash", stored);
+      }
+      return stored;
+    }
+
+    // CEK APAKAH SUDAH MASUK PIN SEBELUMNYA
     document.addEventListener("DOMContentLoaded", () => {
-      if (auth) {
-        onAuthStateChanged(auth, (user) => {
-          if (user) {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('app').classList.remove('hidden');
-            initApp();
-          } else {
-            document.getElementById('loginPage').classList.remove('hidden');
-            document.getElementById('app').classList.add('hidden');
-          }
-        });
+      const isUnlocked = sessionStorage.getItem("pijar_unlocked");
+      if (isUnlocked === "true") {
+        unlockApp();
       }
     });
 
-    // FUNGSI LOGIN EMAIL & PASSWORD
-    window.handleEmailLogin = async function(event) {
+    // FUNGSI CEK PIN SAAT LOGIN
+    window.handlePinSubmit = async function(event) {
       event.preventDefault();
-      const email = document.getElementById('loginEmail').value.trim();
-      const pass = document.getElementById('loginPassword').value.trim();
-      const errBox = document.getElementById('loginError');
-      const btn = document.getElementById('loginBtn');
+      const enteredPin = document.getElementById('pinInput').value;
+      const errBox = document.getElementById('pinError');
 
-      errBox.classList.add('hidden');
-      btn.innerText = "Memverifikasi...";
-      btn.disabled = true;
+      const enteredHash = await hashPin(enteredPin);
+      const correctHash = await getStoredPinHash();
 
-      try {
-        await signInWithEmailAndPassword(auth, email, pass);
-      } catch (error) {
-        console.error("Login Error Detail:", error.code, error.message);
-        errBox.innerText = "Login gagal! Periksa kembali password Anda.";
+      if (enteredHash === correctHash) {
+        sessionStorage.setItem("pijar_unlocked", "true");
+        unlockApp();
+      } else {
         errBox.classList.remove('hidden');
-        btn.innerText = "Masuk ke Dashboard";
-        btn.disabled = false;
+        document.getElementById('pinInput').value = '';
       }
     }
 
-    // FUNGSI LOGOUT
-    window.handleLogout = async function() {
-      if (confirm("Yakin ingin keluar dari aplikasi?")) {
-        await signOut(auth);
+    // FUNGSI GANTI PIN
+    window.changePin = async function(event) {
+      event.preventDefault();
+      const oldPin = document.getElementById('oldPin').value;
+      const newPin = document.getElementById('newPin').value;
+      const confirmPin = document.getElementById('confirmPin').value;
+      const msgBox = document.getElementById('settingsMsg');
+
+      msgBox.classList.remove('hidden');
+
+      const oldPinHash = await hashPin(oldPin);
+      const correctHash = await getStoredPinHash();
+
+      if (oldPinHash !== correctHash) {
+        msgBox.className = "text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-xl text-center";
+        msgBox.innerText = "PIN Lama salah!";
+        return;
       }
+
+      if (newPin.length < 4) {
+        msgBox.className = "text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-xl text-center";
+        msgBox.innerText = "PIN Baru minimal 4 karakter!";
+        return;
+      }
+
+      if (newPin !== confirmPin) {
+        msgBox.className = "text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-xl text-center";
+        msgBox.innerText = "Konfirmasi PIN Baru tidak cocok!";
+        return;
+      }
+
+      const newPinHash = await hashPin(newPin);
+      localStorage.setItem("pijar_owner_pin_hash", newPinHash);
+      
+      msgBox.className = "text-xs font-semibold text-emerald-600 bg-emerald-50 p-2.5 rounded-xl text-center";
+      msgBox.innerText = "PIN berhasil diubah secara aman!";
+      
+      document.getElementById('oldPin').value = '';
+      document.getElementById('newPin').value = '';
+      document.getElementById('confirmPin').value = '';
+    }
+
+    function unlockApp() {
+      document.getElementById('pinLockPage').classList.add('hidden');
+      document.getElementById('app').classList.remove('hidden');
+      initApp();
+    }
+
+    // FUNGSI KUNCI KEMBALI (LOCK)
+    window.handleLock = function() {
+      sessionStorage.removeItem("pijar_unlocked");
+      document.getElementById('pinLockPage').classList.remove('hidden');
+      document.getElementById('app').classList.add('hidden');
+      document.getElementById('pinInput').value = '';
+      document.getElementById('pinError').classList.add('hidden');
     }
 
     function initApp() {
@@ -528,7 +620,7 @@
         activeNav.classList.add('bg-blue-600', 'text-white', 'shadow-md', 'shadow-blue-600/20');
       }
 
-      ['input', 'orders', 'reports'].forEach(t => {
+      ['input', 'orders', 'reports', 'settings'].forEach(t => {
         const mBtn = document.getElementById('m-nav-' + t);
         if(mBtn) {
           mBtn.classList.remove('text-blue-600');
