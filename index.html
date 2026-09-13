@@ -28,7 +28,7 @@
 </head>
 <body class="bg-slate-50/50 text-slate-800 pb-24 md:pb-0 antialiased selection:bg-blue-600 selection:text-white">
 
-  <!-- HALAMAN LOGIN EMAIL & PASSWORD -->
+  <!-- HALAMAN LOGIN -->
   <div id="loginPage" class="min-h-screen flex items-center justify-center p-4 bg-slate-900 fixed inset-0 z-50">
     <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full border border-slate-100">
       <div class="text-center mb-6">
@@ -42,11 +42,11 @@
       <form onsubmit="handleEmailLogin(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Email</label>
-          <input type="email" id="loginEmail" required placeholder="owner@pijarelektrik.com" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm bg-slate-50 font-medium">
+          <input type="email" id="loginEmail" required value="pijarelektrik1@gmail.com" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm bg-slate-50 font-medium">
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Password</label>
-          <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm bg-slate-50 font-medium">
+          <input type="password" id="loginPassword" required placeholder="Masukkan password Anda" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm bg-slate-50 font-medium">
         </div>
         <div id="loginError" class="text-xs text-red-600 font-semibold hidden text-center"></div>
         <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/25 text-sm cursor-pointer mt-2">
@@ -56,7 +56,7 @@
     </div>
   </div>
 
-  <!-- APP CONTAINER (TERSEMBUNYI SEBELUM LOGIN) -->
+  <!-- APP CONTAINER -->
   <div id="app" class="min-h-screen flex flex-col md:flex-row hidden">
     
     <!-- DESKTOP SIDEBAR -->
@@ -300,21 +300,23 @@
     // FUNGSI LOGIN EMAIL & PASSWORD
     window.handleEmailLogin = async function(event) {
       event.preventDefault();
-      const email = document.getElementById('loginEmail').value;
-      const pass = document.getElementById('loginPassword').value;
+      const email = document.getElementById('loginEmail').value.trim();
+      const pass = document.getElementById('loginPassword').value.trim();
       const errBox = document.getElementById('loginError');
       const btn = document.getElementById('loginBtn');
 
       errBox.classList.add('hidden');
       btn.innerText = "Memverifikasi...";
+      btn.disabled = true;
 
       try {
         await signInWithEmailAndPassword(auth, email, pass);
       } catch (error) {
-        console.error("Login Error:", error);
-        errBox.innerText = "Login gagal! Periksa kembali email dan password Anda.";
+        console.error("Login Error Detail:", error.code, error.message);
+        errBox.innerText = "Login gagal! Periksa kembali password Anda.";
         errBox.classList.remove('hidden');
         btn.innerText = "Masuk ke Dashboard";
+        btn.disabled = false;
       }
     }
 
