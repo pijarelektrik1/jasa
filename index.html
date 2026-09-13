@@ -311,7 +311,7 @@
         appId: "1:803265339764:web:e3d063aecfa616d3384c21"
       };
 
-      const app = initializeApplication = initializeApp(firebaseConfig);
+      const app = initializeApp(firebaseConfig);
       db = getFirestore(app);
     } catch (e) {
       console.log("Inisialisasi Firebase gagal:", e);
@@ -325,11 +325,10 @@
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // MENDAPATKAN HASH PIN (DEFAULT "1234" YANG DI-HASH KELUARANNYA)
+    // MENDAPATKAN HASH PIN (DEFAULT "1234")
     async function getStoredPinHash() {
       let stored = localStorage.getItem("pijar_owner_pin_hash");
       if (!stored) {
-        // Hash bawaan untuk angka "1234"
         stored = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
         localStorage.setItem("pijar_owner_pin_hash", stored);
       }
