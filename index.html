@@ -28,6 +28,32 @@
 </head>
 <body class="bg-slate-50/50 text-slate-800 pb-24 md:pb-0 antialiased selection:bg-blue-600 selection:text-white">
 
+  <!-- MODAL POP-UP KUSTOM (MODERN) -->
+  <div id="customModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center border border-slate-100 transform transition-all">
+      <div id="modalIconContainer" class="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-2xl shadow-lg mb-4 bg-blue-50 text-blue-600 shadow-blue-500/20">
+        <i id="modalIcon" class="fa-solid fa-circle-info"></i>
+      </div>
+      <h3 id="modalTitle" class="text-base font-extrabold text-slate-900 mb-1">Informasi</h3>
+      <p id="modalMessage" class="text-xs text-slate-500 mb-6 leading-relaxed">Pesan kustom di sini.</p>
+      
+      <div id="modalSingleBtnContainer">
+        <button onclick="closeModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all shadow-md shadow-blue-600/20 text-xs cursor-pointer">
+          Mengerti / Tutup
+        </button>
+      </div>
+
+      <div id="modalConfirmBtnContainer" class="grid grid-cols-2 gap-3 hidden">
+        <button id="modalCancelBtn" onclick="closeModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-all text-xs cursor-pointer">
+          Batal
+        </button>
+        <button id="modalYesBtn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-all shadow-md shadow-red-600/20 text-xs cursor-pointer">
+          Ya, Lanjutkan
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- HALAMAN LOCK SCREEN PIN -->
   <div id="pinLockPage" class="min-h-screen flex items-center justify-center p-4 bg-slate-900 fixed inset-0 z-50">
     <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-sm w-full border border-slate-100 text-center">
@@ -211,6 +237,7 @@
         <div class="space-y-6">
           <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between gap-4">
             <label class="text-xs font-bold text-slate-600 uppercase tracking-wider">Pilih Bulan Laporan:</label>
+            <!-- DIKEMBALIKAN KE type="month" -->
             <input type="month" id="reportMonthFilter" onchange="renderReports(window.ordersList)" class="px-4 py-2 rounded-xl border border-slate-300 text-sm font-bold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-600">
           </div>
 
@@ -317,7 +344,53 @@
       console.log("Inisialisasi Firebase gagal:", e);
     }
 
-    // FUNGSI ENKRIPSI SHA-256
+    // MODAL KUSTOM
+    window.showModal = function(title, message, type = 'info', onConfirm = null) {
+      const modal = document.getElementById('customModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalMessage = document.getElementById('modalMessage');
+      const iconContainer = document.getElementById('modalIconContainer');
+      const modalIcon = document.getElementById('modalIcon');
+      const singleBtn = document.getElementById('modalSingleBtnContainer');
+      const confirmBtnContainer = document.getElementById('modalConfirmBtnContainer');
+      const yesBtn = document.getElementById('modalYesBtn');
+
+      modalTitle.innerText = title;
+      modalMessage.innerText = message;
+
+      if (type === 'success') {
+        iconContainer.className = "w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-2xl shadow-lg mb-4 bg-emerald-50 text-emerald-600 shadow-emerald-500/20";
+        modalIcon.className = "fa-solid fa-circle-check";
+      } else if (type === 'error') {
+        iconContainer.className = "w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-2xl shadow-lg mb-4 bg-red-50 text-red-600 shadow-red-500/20";
+        modalIcon.className = "fa-solid fa-triangle-exclamation";
+      } else if (type === 'confirm') {
+        iconContainer.className = "w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-2xl shadow-lg mb-4 bg-amber-50 text-amber-600 shadow-amber-500/20";
+        modalIcon.className = "fa-solid fa-circle-question";
+      } else {
+        iconContainer.className = "w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-2xl shadow-lg mb-4 bg-blue-50 text-blue-600 shadow-blue-500/20";
+        modalIcon.className = "fa-solid fa-circle-info";
+      }
+
+      if (onConfirm) {
+        singleBtn.classList.add('hidden');
+        confirmBtnContainer.classList.remove('hidden');
+        yesBtn.onclick = function() {
+          closeModal();
+          onConfirm();
+        };
+      } else {
+        singleBtn.classList.remove('hidden');
+        confirmBtnContainer.classList.add('hidden');
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    window.closeModal = function() {
+      document.getElementById('customModal').classList.add('hidden');
+    }
+
     async function hashPin(pin) {
       const msgBuffer = new TextEncoder().encode(pin);
       const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -325,7 +398,6 @@
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // MENGAMBIL HASH PIN DARI FIRESTORE (CLOUD)
     async function getStoredPinHash() {
       try {
         const pinDocRef = doc(db, "settings", "security");
@@ -333,19 +405,16 @@
         if (docSnap.exists()) {
           return docSnap.data().pinHash;
         } else {
-          // Jika belum ada di database, buat default "1234" yang sudah di-hash
           const defaultHash = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
           await setDoc(pinDocRef, { pinHash: defaultHash });
           return defaultHash;
         }
       } catch (error) {
         console.error("Gagal mengambil PIN dari Cloud:", error);
-        // Fallback jika offline
         return "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
       }
     }
 
-    // CEK APAKAH SUDAH MASUK PIN SEBELUMNYA DI BROWSER INI
     document.addEventListener("DOMContentLoaded", () => {
       const isUnlocked = sessionStorage.getItem("pijar_unlocked");
       if (isUnlocked === "true") {
@@ -353,7 +422,6 @@
       }
     });
 
-    // FUNGSI CEK PIN SAAT LOGIN
     window.handlePinSubmit = async function(event) {
       event.preventDefault();
       const enteredPin = document.getElementById('pinInput').value;
@@ -385,7 +453,6 @@
       }
     }
 
-    // FUNGSI GANTI PIN KE CLOUD
     window.changePin = async function(event) {
       event.preventDefault();
       const oldPin = document.getElementById('oldPin').value;
@@ -425,16 +492,15 @@
         const pinDocRef = doc(db, "settings", "security");
         await setDoc(pinDocRef, { pinHash: newPinHash });
         
-        msgBox.className = "text-xs font-semibold text-emerald-600 bg-emerald-50 p-2.5 rounded-xl text-center";
-        msgBox.innerText = "PIN berhasil diubah dan disinkronkan ke cloud!";
+        showModal("Berhasil!", "PIN berhasil diubah dan disinkronkan ke cloud.", "success");
+        msgBox.classList.add('hidden');
         
         document.getElementById('oldPin').value = '';
         document.getElementById('newPin').value = '';
         document.getElementById('confirmPin').value = '';
       } catch (error) {
         console.error("Gagal ganti PIN:", error);
-        msgBox.className = "text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-xl text-center";
-        msgBox.innerText = "Gagal menyimpan PIN ke database.";
+        showModal("Gagal", "Gagal menyimpan PIN ke database.", "error");
       } finally {
         saveBtn.disabled = false;
         saveBtn.innerText = "Simpan PIN Baru";
@@ -447,7 +513,6 @@
       initApp();
     }
 
-    // FUNGSI KUNCI KEMBALI (LOCK)
     window.handleLock = function() {
       sessionStorage.removeItem("pijar_unlocked");
       document.getElementById('pinLockPage').classList.remove('hidden');
@@ -461,10 +526,10 @@
       const currentMonth = today.substring(0, 7);
 
       const dateInput = document.getElementById('installationDate');
-      if(dateInput) dateInput.value = today;
+      if(dateInput && !dateInput.value) dateInput.value = today;
 
       const monthFilter = document.getElementById('reportMonthFilter');
-      if(monthFilter) monthFilter.value = currentMonth;
+      if(monthFilter && !monthFilter.value) monthFilter.value = currentMonth;
       
       loadOrders();
     }
@@ -512,10 +577,11 @@
         document.getElementById('installationDate').value = new Date().toISOString().split('T')[0];
         document.getElementById('quantity').value = '1';
         
+        showModal("Berhasil!", "Orderan baru berhasil disimpan ke database.", "success");
         loadOrders();
       } catch (error) {
         console.error("Gagal menyimpan:", error);
-        alert("Terjadi kesalahan saat menyimpan data. Pastikan Firestore rules Anda sudah diatur ke public (allow read, write: if true).");
+        showModal("Kesalahan", "Gagal menyimpan data. Pastikan Firestore rules Anda sudah diatur ke public.", "error");
       } finally {
         submitBtn.disabled = false;
         submitBtn.className = "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 text-sm cursor-pointer mt-2";
@@ -535,10 +601,15 @@
       });
     }
 
-    window.deleteOrder = async function(id) {
-      if (confirm("Yakin ingin menghapus data orderan ini?")) {
-        await deleteDoc(doc(db, "orders", id));
-      }
+    window.deleteOrder = function(id) {
+      showModal("Konfirmasi Hapus", "Yakin ingin menghapus data orderan ini?", "confirm", async () => {
+        try {
+          await deleteDoc(doc(db, "orders", id));
+          showModal("Terhapus", "Data orderan berhasil dihapus.", "success");
+        } catch (e) {
+          showModal("Gagal", "Gagal menghapus data orderan.", "error");
+        }
+      });
     }
 
     function renderOrdersAndReports() {
@@ -591,8 +662,12 @@
 
     window.renderReports = function(data) {
       const monthFilterInput = document.getElementById('reportMonthFilter');
-      const selectedMonth = monthFilterInput ? monthFilterInput.value : new Date().toISOString().substring(0, 7);
       
+      if (!monthFilterInput.value) {
+        monthFilterInput.value = new Date().toISOString().substring(0, 7);
+      }
+
+      const selectedMonth = monthFilterInput.value;
       const [year, month] = selectedMonth.split('-');
       const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
       const formattedMonthName = monthNames[parseInt(month) - 1] + " " + year;
@@ -664,10 +739,10 @@
           mBtn.classList.add('text-slate-400');
         }
       });
-      const activeMBtnTarget = document.getElementById('m-nav-' + tabName);
-      if(activeMBtnTarget) {
-        activeMBtnTarget.classList.remove('text-slate-400');
-        activeMBtnTarget.classList.add('text-blue-600');
+      const targetMBtn = document.getElementById('m-nav-' + tabName);
+      if(targetMBtn) {
+        targetMBtn.classList.remove('text-slate-400');
+        targetMBtn.classList.add('text-blue-600');
       }
     }
   </script>
